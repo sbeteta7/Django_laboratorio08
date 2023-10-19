@@ -1,0 +1,199 @@
+{% extends 'layouts/base.html' %}
+ {% block content %}
+
+ {% if messages %}
+ <p class="messages">
+     {% for message in messages %}
+         <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+     {% endfor %}
+ </p>
+ {% endif %}
+ <div class=" mt-4">
+    <div class="d-flex justify-content-between">
+        <div>
+        <h1>GESTIÓN DE MATRICULAS</h1>
+        </div>
+        <div>
+        <button type="button" class="btn btn-primary mb-4" data-toggle="modal" data-target="#nuevaMatricula">
+            Registrar Matricula
+        </button>
+        </div>
+    </div>
+    <form class="w-100 me-3 mt-4 mb-4" method="get">
+        <div class="radio-tabs">
+            {{ formSearch.campo }}
+        </div>
+        <div class="tab-content">
+            <div id="tab-matricula_id" class="tab">
+                    
+        {% if formSearch.campo.value == "matricula_id" %}
+        {{ formSearch.matricula_id }}
+        {% elif formSearch.campo.value == "AnioAcademico" %}
+        {{ formSearch.AnioAcademico }}
+        {% elif formSearch.campo.value == "Ciclo" %}
+        {{ formSearch.Ciclo }}
+        {% elif formSearch.campo.value == "CodigoEstudiante" %}
+        {{ formSearch.CodigoEstudiante }}
+        {% elif formSearch.campo.value == "CodigoCurso" %}
+        {{ formSearch.CodigoCurso }}
+        {% elif formSearch.campo.value == "CodigoDocente" %}
+        {{ formSearch.CodigoDocente }}
+        {% endif %}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar</button>
+
+    </form>
+
+    <div class="card shadow mb-4 ">
+        <div class="col-12">
+            <div class="table-response ">
+                <table class="table table-hover ">
+                    <thead>
+                    <tr>
+                        <td>CODIGO</td>
+                        <td>AÑO ACADEMICO</td>
+                        <td>CICLO</td>
+                        <td>FECHA</td>
+                        <td>CURSO</td>
+                        <td>DOCENTE</td>
+                        <td>ESTUDIANTE</td>
+                        <td>OPCIONES</td>
+                        
+
+
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for matricula in matriculas %}
+                    <tr>
+                        <td>{{matricula.matricula_id}}</td>
+                        <td>{{matricula.AnioAcademico}}</td>
+                        <td>{{matricula.Ciclo}}</td>
+                        <td >{{matricula.Fecha}}</td>
+                        <td >{{matricula.CodigoEstudiante}}</td>
+                        <td >{{matricula.CodigoCurso}}</td>
+                        <td >{{matricula.CodigoDocente}}</td>
+                        <td>
+                            <button type="button" class="btn btn-primary editar-matricula" data-toggle="modal" data-target="#editarMatricula-{{ matricula.matricula_id }}">
+                                Editar
+                            </button>
+                            <button type="button" class="btn btn-danger eliminar-matricula" data-toggle="modal" data-target="#eliminarMatricula-{{ matricula.matricula_id }}">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                    
+                    <div class="modal fade" id="editarMatricula-{{ matricula.matricula_id }}" tabindex="-1" role="dialog" aria-labelledby="editarMatriculaLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="exampleModalLabel">Editar Matricula</h5>
+                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button>
+                                </div>
+                                <div class="modal-body">
+                                    
+                                    <form method="post" action="{% url 'appCursos:update_matricula' matricula.matricula_id %}">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label for="AnioAcademico">Año Académico</label>
+                                            <input type="text" name="AnioAcademico" id="AnioAcademico" value="{{ matricula.AnioAcademico }}" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Ciclo">Ciclo</label>
+                                            <input type="text" name="Ciclo" id="Ciclo" value="{{ matricula.Ciclo }}" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="Fecha">Fecha</label>
+                                            <input type="date" name="Fecha" id="Fecha" value="{{ matricula.Fecha|date:'Y-m-d' }}" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="CodigoEstudiante">Código Estudiante</label>
+                                            <select name="CodigoEstudiante" id="CodigoEstudiante" class="form-control">
+                                                {% for estudiante in estudiantes %}
+                                                    <option value="{{ estudiante.CodEstudiante }}" {% if estudiante.CodEstudiante == matricula.CodigoEstudiante_id %}selected{% endif %}>{{ estudiante.Nombre }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="CodigoCurso">Código Curso</label>
+                                            <select name="CodigoCurso" id="CodigoCurso" class="form-control">
+                                                {% for curso in cursos %}
+                                                    <option value="{{ curso.CodCurso }}" {% if curso.CodCurso == matricula.CodigoCurso_id %}selected{% endif %}>{{ curso.Nombre }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="CodigoDocente">Código Docente</label>
+                                            <select name="CodigoDocente" id="CodigoDocente" class="form-control">
+                                                {% for docente in docentes %}
+                                                    <option value="{{ docente.CodDocente }}" {% if docente.CodDocente == matricula.CodigoDocente_id %}selected{% endif %}>{{ docente.Nombre }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                    </form>
+                                    
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> 
+                                </div>
+                              </div>
+                            </div>
+                    </div>
+                        
+
+                    <div class="modal fade" id="eliminarMatricula-{{ matricula.matricula_id }}" tabindex="-1" role="dialog" aria-labelledby="eliminarMatriculaLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <p>¿Estás seguro de que deseas eliminar?</p>
+                                    <form method="post" action="{% url 'appCursos:delete_matricula' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="matricula_id" value="{{ matricula.matricula_id }}">
+                                        <button type="submit" class="btn btn-danger">Confirmar</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="nuevaMatricula" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Registrar Matricula</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            
+            <form method="post" action="{% url 'appCursos:create_matricula' %}">
+                {% csrf_token %}
+                {{formCreateMatricula.as_p}}
+                <button type="submit" class="btn btn-primary">Registrar Matrícula</button>
+            </form>
+            
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> 
+        </div>
+      </div>
+    </div>
+</div>
+
+
+{% endblock %}
